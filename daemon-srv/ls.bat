@@ -1,0 +1,2 @@
+python ls.py
+pause

@@ -1,7 +1,7 @@
 from pyDes import *
 from time import time
 from binascii import unhexlify as unhex
-import os
+import os,random
 
 
 def count_head(data):
@@ -42,7 +42,6 @@ def decrypt_file(file_path,key_16):
 				break
 		obj_file.close()
 
-
 def encrypt_file(file_path,key_16):
 
 	t = des(unhex(key_16))
@@ -81,10 +80,17 @@ def encrypt_file(file_path,key_16):
 	else:
 		print("file not exists!")
 
+
+def create_keyfile():
+	ran = hex(random.randint(0,0XFFFFFFFF))
+
+	return ran
+
 if __name__ == '__main__':
 	#_example_des_()
 
 	#encrypt_file("test.pdf","77661100DD223311")
-	decrypt_file("test.pdf.des","77661100DD223311")
+	#decrypt_file("test.pdf.des","77661100DD223311")
+	print(create_keyfile())
 	#_filetest_()
 	#_profile_()
