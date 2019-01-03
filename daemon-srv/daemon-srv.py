@@ -13,6 +13,7 @@ import utils
 import log
 import process
 
+
 #inport user module
 import ls
 
@@ -30,7 +31,6 @@ if __name__=='__main__':
 	server = socket.socket()
 	server.bind((hostIp,hostPort))
 	server.listen()
-
 
 
 	# 交互显示IP和端口
@@ -76,10 +76,10 @@ if __name__=='__main__':
 
 				# ls 命令
 				elif cmd_str.startswith('ls'):
-					if cmd_str == 'ls':	
+					if cmd_str.strip() == 'ls':	
 						pathName = filePath;
 					else:
-						cmd,pathName = data.decode().split()
+						cmd,pathName = datas.decode().strip().split()
 					# 执行 ls 指令
 
 					## 获取文件系统描述
@@ -92,6 +92,7 @@ if __name__=='__main__':
 					#文件系统描述加密
 					# Unimplement
 					conn.send(ls_json.encode('utf-8')) # send ls info
+			
 				# cd 命令
 				elif cmd_str.startswith("cd"):
 					cmd,path = data.decode().split()
@@ -111,6 +112,7 @@ if __name__=='__main__':
 							break
 					else:
 						conn.send('path not exist!'.encode())
+				
 				# get 命令
 				elif cmd_str.startswith("get"):
 					cmd,fileNameStr = data.decode().split()
@@ -132,12 +134,17 @@ if __name__=='__main__':
 							for l in f:
 								conn.send(l)  #不断发送数据
 								process_bar.show_process(f.tell())
-							conn.send("done".encode()) #send file size
+							conn.send("CMD#DONE".encode()) #send file size
 							f.close()
 							#conn.send(m.hexdigest().encode()) #send md5
+						else:
+							print('Error#405: target is not a file')
+							conn.send('Error#405'.encode());	#not a file
 					else:
-						conn.send('file is not exist.')
+						print('Error#404: file is not exist')
+						conn.send('Error#404'.encode());	#file is not exist
 				else :
+					print('Error#403: unknow command')
 					conn.send(('unknow command \''+cmd_str+'\'').encode()) #error
 		except:
 			print('Error')
