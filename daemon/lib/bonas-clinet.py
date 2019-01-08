@@ -3,9 +3,11 @@
 import socket
 import hashlib
 import os
+import json
 
 #import user lab
 import process
+import gui
 
 
 def get_chunck_name():
@@ -29,12 +31,17 @@ if __name__=='__main__':
 
 		# welcome
 		user = 'bowen'
+		pswd = '1234'
+		loginfo = user+'@'+pswd
+		client.send(loginfo.encode()) 
+
 		bashStr = user + '@'+str(conn_info[0])+':'+str(conn_info[1])+'~$ '
 		cmd=input(bashStr)
 
 		# cmd		
 		if len(cmd) == 0: continue
 		
+		# get
 		if cmd.startswith("get"):
 
 			client.send(cmd.encode()) 
@@ -68,15 +75,18 @@ if __name__=='__main__':
 			# receive	
 			server_response = client.recv(1024)
 			f.close() 
-			
+		# ls	
 		elif cmd.startswith("ls"):
 			client.send(cmd.encode()) 
 			server_response = client.recv(1024)
-			print(server_response.decode('utf-8'))
-
+			lsjson=server_response.decode('utf-8')
+			list = json.loads(lsjson)
+			gui.printls(list)
+			#print(server_response.decode('utf-8'))
 		elif cmd.startswith("exit"):
+			client.send(cmd.encode()) 
 			client.close()
-			os.exit()
+			break
 		else :
 			client.send(cmd.encode()) 
 			server_response = client.recv(1024)

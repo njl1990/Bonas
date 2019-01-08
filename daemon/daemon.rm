@@ -1,0 +1,11 @@
+# daemon-srv 
+
+Daemon-Service runs for listening the remote node. It will start a file transform program while reveived the command form remote.
+
+# issue
+## undone
+*login
+
+## fixed
+* client show file list need fix.
+* exit cmd error

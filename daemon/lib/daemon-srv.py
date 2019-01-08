@@ -45,8 +45,11 @@ if __name__=='__main__':
 			print("————————————")
 			conn, addr = server.accept()
 			
+
 			#首次连接登录
 			if UserinfoStr is "":
+				print("Wait for client...")
+				LoginInfo = conn.recv(1024)
 				print("Connected form ",addr[0],' at port ',addr[1])
 				# Permission Check 
 				print("Login:", end='')
@@ -71,7 +74,6 @@ if __name__=='__main__':
 				# exit 命令
 				if cmd_str.startswith('exit'):
 					filePath=initFilePath
-					conn.send("bye".encode('utf-8')) # send ls info
 					UserinfoStr=""
 
 				# ls 命令
@@ -108,7 +110,7 @@ if __name__=='__main__':
 							clientPath = filePath.replace(initFilePath,'./') #变更为相对路径
 							print (os.path.normpath(filePath))
 							# 输出修正后的路径
-							conn.send(os.path.normpath(clientPath).encode('utf-8')) # send ls info
+							conn.send(clientPath.encode('utf-8')) # send ls info
 							break
 					else:
 						conn.send('path not exist!'.encode())
