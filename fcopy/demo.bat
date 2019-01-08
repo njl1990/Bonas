@@ -1,2 +1,0 @@
-python fcp.py
-pause
