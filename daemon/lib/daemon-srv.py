@@ -12,16 +12,26 @@ import math
 import utils
 import log
 import process
-
+import bm
 
 #inport user module
 import ls
 
-def LoginCheck():
-	loginName = "bowen" #temp
-	return loginName
+def LoginCheck(login_message):
+	name = "bowen" #temp
+	role = 'USER'
+	return name, role
 
-
+def Login(clientInfo):	
+	# get login message	
+	print("Login permission check:", end='')
+	login_message = conn.recv(1024)
+	# Permission Check 
+	name,role=LoginCheck(login_message.decode)	# login message check
+	userInfo = bm.UserInfo(name,role,clientInfo)
+	userInfo.Regist()
+	# 工作路径
+	return userInfo
 
 if __name__=='__main__': 
 	hostIp = utils.getHostIp()
@@ -37,121 +47,127 @@ if __name__=='__main__':
 	print("ip: "+hostIp+" port: "+str(hostPort))
 	print("Bonas daemon server is running...")
 
-	UserinfoStr=""
 
+	# 工作状态
+	isConnected = False
+	isLogin = False
+	initFilePath = "E:/Project/"
+
+	clientInfo=None
+	loginUser=None	
+	bash=""
 	# 工作循环
 	while True:
 		try:
-			print("————————————")
+			# print("————————————————————————————————————————————————")
 			conn, addr = server.accept()
-			
-
-			#首次连接登录
-			if UserinfoStr is "":
+			#检查登录状态
+			if not isLogin:
+				#检查连接
 				print("Wait for client...")
-				LoginInfo = conn.recv(1024)
 				print("Connected form ",addr[0],' at port ',addr[1])
-				# Permission Check 
-				print("Login:", end='')
-				LoginUser=LoginCheck()	# login user
-				print(LoginUser)
-				UserinfoStr=LoginUser+"@"+hostIp+":"+str(addr[1])
+				clientInfo=bm.ClientInfo(addr[0],addr[1])
+				loginUser = Login(clientInfo);	# 用户登录
 
-				# 工作路径
-				initFilePath = "E:/Project/"
-				filePath=initFilePath
-			
-			print(UserinfoStr+"~$ ", end='')
-			
-			while 1:
-				data = conn.recv(1024)
-				if not data:
-					break 
-				# 指令检索与处理
-				cmd_str = data.decode()
-				print(cmd_str)	# echo remote cmd
+				if loginUser is not None:
+					log.debug('login successful')
+					isLogin=True 		# set log flag
+					loginUser.path = initFilePath
+					bash = loginUser.bash
+				continue
+			print(bash+"~$ ", end='')
+			data = conn.recv(1024)
+			if not data:
+				print(" ");
+				continue
+			# 指令检索与处理
+			cmd_str = data.decode()
+			print(cmd_str)	# echo remote cmd
 
-				# exit 命令
-				if cmd_str.startswith('exit'):
-					filePath=initFilePath
-					UserinfoStr=""
+			# exit 命令
+			if cmd_str.startswith('exit'):
+				conn.close()
+				isConnected=False
+				isLogin=False
 
-				# ls 命令
-				elif cmd_str.startswith('ls'):
-					if cmd_str.strip() == 'ls':	
-						pathName = filePath;
-					else:
-						cmd,pathName = datas.decode().strip().split()
-					# 执行 ls 指令
+			# ls 命令
+			elif cmd_str.startswith('ls'):
+				if cmd_str.strip() == 'ls':	
+					pathName = loginUser.path;
+				else:
+					cmd,pathName = datas.decode().strip().split()
+				# 执行 ls 指令
 
-					## 获取文件系统描述
-					ls_str = ls.getLsStr(pathName);
-					log.debug(ls_str)
-					#ls.lsShow(ls_str)
-					
-					ls_json = json.dumps(ls_str)
-
-					#文件系统描述加密
-					# Unimplement
-					conn.send(ls_json.encode('utf-8')) # send ls info
-			
-				# cd 命令
-				elif cmd_str.startswith("cd"):
-					cmd,path = data.decode().split()
-					if os.path.exists(filePath+path+'/'):
-						if not os.path.isfile(path):   #判断是否该文件名为文件
-
-							'''
-							此处涉及到路径名在Linux 和 Windows下不统一的问题
-							后续考虑修复
-
-							'''
-							filePath=filePath+path+'/'
-							clientPath = filePath.replace(initFilePath,'./') #变更为相对路径
-							print (os.path.normpath(filePath))
-							# 输出修正后的路径
-							conn.send(clientPath.encode('utf-8')) # send ls info
-							break
-					else:
-						conn.send('path not exist!'.encode())
+				## 获取文件系统描述
+				ls_str = ls.getLsStr(pathName);
+				log.debug(str(ls_str))
+				#ls.lsShow(ls_str)
 				
-				# get 命令
-				elif cmd_str.startswith("get"):
-					cmd,fileNameStr = data.decode().split()
-					filename=filePath+fileNameStr
-					# log.debug('filename = '+filename)
-					if os.path.exists(filename):
-						if os.path.isfile(filename):   #判断是否该文件名为文件
-							f = open(filename,"rb")
-							file_size = os.stat(filename).st_size  #利用os.stat获取文件的大小
+				ls_json = json.dumps(ls_str)
 
-							# 发送文件大小
-							conn.send(str(file_size).encode() ) #send file size
-							conn.recv(1024) #等待确认，同时可以防止粘包。
-							# log.debug('size:'+str(file_size))
-							#计算发送次数
+				#文件系统描述加密
+				# Unimplement
+				conn.send(ls_json.encode('utf-8')) # send ls info
 
-							process_bar = process.ShowProcess(file_size, 'DONE')
-							# 发送文件 
-							for l in f:
-								conn.send(l)  #不断发送数据
-								process_bar.show_process(f.tell())
-							conn.send("CMD#DONE".encode()) #send file size
-							f.close()
-							#conn.send(m.hexdigest().encode()) #send md5
-						else:
-							print('Error#405: target is not a file')
-							conn.send('Error#405'.encode());	#not a file
+			# cd 命令
+			elif cmd_str.startswith("cd"):
+				cmd,path = data.decode().split()
+				if os.path.exists(loginUser.path+path+'/'):
+					if not os.path.isfile(path):   #判断是否该文件名为文件
+
+						'''
+						此处涉及到路径名在Linux 和 Windows下不统一的问题
+						后续考虑修复
+
+						'''
+						loginUser.path=loginUser.path+path+'/'
+						clientPath = loginUser.path.replace(initFilePath,'./') #变更为相对路径
+						print (os.path.normpath(loginUser.path))
+						# 输出修正后的路径
+						conn.send(clientPath.encode('utf-8')) # send ls info
+						continue
+				else:
+					conn.send('path not exist!'.encode())
+			
+			# get 命令
+			elif cmd_str.startswith("get"):
+				cmd,fileNameStr = data.decode().split()
+				filename=loginUser.path+fileNameStr
+				# log.debug('filename = '+filename)
+				if os.path.exists(filename):
+					if os.path.isfile(filename):   #判断是否该文件名为文件
+						f = open(filename,"rb")
+						file_size = os.stat(filename).st_size  #利用os.stat获取文件的大小
+
+						# 发送文件大小
+						conn.send(str(file_size).encode() ) #send file size
+						conn.recv(1024) #等待确认，同时可以防止粘包。
+						# log.debug('size:'+str(file_size))
+						#计算发送次数
+
+						process_bar = process.ShowProcess(file_size, 'DONE')
+						# 发送文件 
+						for l in f:
+							conn.send(l)  #不断发送数据
+							process_bar.show_process(f.tell())
+						conn.send("CMD#DONE".encode()) #send file size
+						f.close()
+						#conn.send(m.hexdigest().encode()) #send md5
 					else:
-						print('Error#404: file is not exist')
-						conn.send('Error#404'.encode());	#file is not exist
-				else :
-					print('Error#403: unknow command')
-					conn.send(('unknow command \''+cmd_str+'\'').encode()) #error
-		except:
-			print('Error')
-			print(sys.exc_info())
-			continue
-		else:
-			continue
+						print('Error#405: target is not a file')
+						conn.send('Error#405'.encode());	#not a file
+				else:
+					print('Error#404: file is not exist')
+					conn.send('Error#404'.encode());	#file is not exist
+			else :
+				print('Error#403: unknow command')
+				conn.send(('unknow command \''+cmd_str+'\'').encode()) #error
+
+		except Exception as e:
+			print('发生错误的文件：', e.__traceback__.tb_frame.f_globals['__file__'])
+			print('错误所在的行号：', e.__traceback__.tb_lineno)
+			print('错误信息', e)
+			conn.close()
+			isConnected=False;
+			isLogin=False;
 	server.close()

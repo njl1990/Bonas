@@ -24,18 +24,20 @@ def get_conn_info():
 if __name__=='__main__': 
 
 	conn_info=get_conn_info()
+	client = socket.socket()
+	client.connect(conn_info)
+
+	# welcome
+	user = 'bowen'
+	pswd = '1234'
+	loginfo = user+'@'+pswd
+	client.send(loginfo.encode()) 
+	bashStr = user + '@'+str(conn_info[0])+':'+str(conn_info[1])+'~$ '
+
 
 	while True:
 		client = socket.socket()
 		client.connect(conn_info)
-
-		# welcome
-		user = 'bowen'
-		pswd = '1234'
-		loginfo = user+'@'+pswd
-		client.send(loginfo.encode()) 
-
-		bashStr = user + '@'+str(conn_info[0])+':'+str(conn_info[1])+'~$ '
 		cmd=input(bashStr)
 
 		# cmd		

@@ -4,7 +4,7 @@ Daemon-Service runs for listening the remote node. It will start a file transfor
 
 # issue
 ## undone
-*login
+*loginL: design two login modle. GUEST is the default modle. USER modle need supply username and password. password should desed.
 
 ## fixed
 * client show file list need fix.
