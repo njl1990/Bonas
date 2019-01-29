@@ -1,0 +1,5 @@
+[2019/01/23 13:58:18 CST] [INFO] (ngrok/log.(*PrefixLogger).Info:83) [client] Trusting root CAs: [assets/client/tls/ngrokroot.crt]
+[2019/01/23 13:58:18 CST] [INFO] (ngrok/log.(*PrefixLogger).Info:83) [view] [web] Serving web interface on 127.0.0.1:4040
+[2019/01/23 13:58:18 CST] [INFO] (ngrok/log.(*PrefixLogger).Info:83) [view] [term] Resize event, redrawing
+[2019/01/23 13:58:18 CST] [INFO] (ngrok/log.(*PrefixLogger).Info:83) [client] Authenticated with server, client id: a36002d530634e4df6d9ae078f586c71
+[2019/01/23 13:58:18 CST] [INFO] (ngrok/log.(*PrefixLogger).Info:83) [client] Tunnel established at tcp://server.natappfree.cc:43680

@@ -4,22 +4,36 @@ import socket
 import hashlib
 import os
 import json
+import getpass
+import des
 
 #import user lab
 import process
 import gui
-
 
 def get_chunck_name():
 	filename = 'crt.py'
 	return filename
 	
 def get_conn_info():
-	#ip,port=input("server ip & port: ").split()
-	#conn_info=(ip, int(port))
-	conn_info=('192.168.99.1', 9032)
+	ip,port=input("server ip & port: ").split()
+	conn_info=(ip, int(port))
+	#conn_info=('192.168.99.1', 9032)
 	return conn_info
 
+
+def get_user_info(conn_info):	
+	
+	#user="bowen"
+	#pswd="1234"
+	
+	user = input("User:")
+	pswd = getpass.getpass()
+	loginfo = user+'@'+pswd
+
+	client.send(loginfo.encode()) 
+	bashStr = user + '@'+str(conn_info[0])+':'+str(conn_info[1])+'~$ '
+	return bashStr
 
 if __name__=='__main__': 
 
@@ -28,11 +42,7 @@ if __name__=='__main__':
 	client.connect(conn_info)
 
 	# welcome
-	user = 'bowen'
-	pswd = '1234'
-	loginfo = user+'@'+pswd
-	client.send(loginfo.encode()) 
-	bashStr = user + '@'+str(conn_info[0])+':'+str(conn_info[1])+'~$ '
+	bashStr=get_user_info(conn_info)
 
 
 	while True:
