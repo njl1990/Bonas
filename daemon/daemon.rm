@@ -5,8 +5,15 @@ Daemon-Service runs for listening the remote node. It will start a file transfor
 # issue
 ## undone
 * deskey file
+##* 通过mail同步在线信息
+上线时：启动natapp、收取最新mail,更新地址并发送mail；获取连接清单
+退出时：收取最新mail，删除地址并发送mail；
+
 
 ## fixed
 * client show file list need fix.
 * exit cmd error
 * login: design two login modle. GUEST is the default modle. USER modle need supply username and password. password should desed.
+
+# task
+1.完成mail组件

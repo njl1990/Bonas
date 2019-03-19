@@ -1,0 +1,4 @@
+bowen
+pswd
+
+lcd mysite.tar

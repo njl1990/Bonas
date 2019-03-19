@@ -1,0 +1,2 @@
+python sendmail.py
+pause

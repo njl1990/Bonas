@@ -1,4 +1,4 @@
 del natapplog*
-start natapp.exe -config=natappconfig.ini
+start ./exec/natapp.exe -config=./exec/natappconfig.ini
 start python ./lib/daemon-srv.py
 pause

@@ -18,6 +18,7 @@ import bm
 
 #inport user module
 import ls
+import node
 
 def LoginCheck(login_message):
 	name = "bowen" #temp
@@ -37,12 +38,16 @@ def Login(clientInfo):
 
 if __name__=='__main__': 
 	hostIp = utils.getHostIp()
-	hostPort = 9032
+	hostPort = 4040
 
 	# 启动服务
 	server = socket.socket()
 	server.bind((hostIp,hostPort))
 	server.listen()
+
+	# 发布接入点
+	node = NodeManager()
+	node.node_login()
 
 
 	# 交互显示IP和端口
