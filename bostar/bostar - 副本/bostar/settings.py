@@ -25,13 +25,12 @@ SECRET_KEY = 'syoxsj0^4!jdwgo95n36%ft4%00+v=3^bf4u(*a4gg&x8ng8ot'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['server.natappfree.cc','127.0.0.1']
+ALLOWED_HOSTS = []
 
 
 # Application definition
 
 INSTALLED_APPS = [
-	'process.apps.ProcessConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
