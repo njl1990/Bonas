@@ -50,3 +50,27 @@ def getChapterById(request,chapter_id):
 	project = Project.objects.get(id=chapter.project_id)
 	context = {'chapter':chapter,'project':project}
 	return render(request, 'chapter.html', context)
+
+def rollbackProcess(request,chapter_id):
+	chapter=Chapter.objects.get(id=chapter_id)
+	if(chapter.current_value<=0):
+		return HttpResponse(0)
+	chapter.current_value=chapter.current_value-1
+	percent = round(100*(chapter.current_value/chapter.total_value))
+	chapter.save()
+	return HttpResponse(percent)
+
+def finishProcess(request,chapter_id):
+	chapter=Chapter.objects.get(id=chapter_id)
+	chapter.current_value=chapter.total_value
+	chapter.save()
+	return HttpResponse("100")
+
+def addProcess(request,chapter_id):
+	chapter=Chapter.objects.get(id=chapter_id)
+	if(chapter.current_value>=chapter.total_value):
+		return HttpResponse(100)
+	chapter.current_value=chapter.current_value+1
+	percent = round(100*(chapter.current_value/chapter.total_value))
+	chapter.save()
+	return HttpResponse(percent)
